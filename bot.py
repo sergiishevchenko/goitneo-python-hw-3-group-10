@@ -24,6 +24,7 @@ def exit_command(args, contacts):
 def add_contact(args, contacts: AddressBook):
     name = Name(args[0])
     phone = Phone(args[1])
+
     if phone.validate():
         contacts.add_record(Record(name, phone))
         return 'Contact added.'
@@ -34,6 +35,7 @@ def add_contact(args, contacts: AddressBook):
 def add_birthday(args, contacts: AddressBook):
     name = Name(args[0])
     birthday = Birthday(args[1])
+
     if birthday.validate():
         record = contacts.find(name)
         if record:
@@ -56,13 +58,14 @@ def change_contact(args, contacts: AddressBook):
     name = Name(args[0])
     new_phone = Phone(args[1])
 
-    old_record = contacts.find(name)
-    if old_record:
-        old_phone = old_record.phones[0]
-        old_record.edit_phone(old_phone, new_phone)
-        return 'Contact changed.'
-    else:
+    if new_phone.validate():
+        old_record = contacts.find(name)
+        if old_record:
+            old_phone = old_record.phones[0]
+            old_record.edit_phone(old_phone, new_phone)
+            return 'Contact changed.'
         return 'User does not exists.'
+    return 'Incorrect phone format.'
 
 
 def get_all(args, contacts: AddressBook):
