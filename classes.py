@@ -1,5 +1,6 @@
 from collections import UserDict
 from datetime import datetime
+from itertools import chain
 
 import re
 
@@ -25,8 +26,8 @@ class Phone(Field):
 class Birthday(Field):
 
     def validate(self):
-        datetime.strptime(self.value, "%d.%m.%Y")
-        return True
+        pattern = "^\d{2}.\d{2}.\d{4}$"
+        return re.match(pattern, self.value)
 
 
 class Record:
@@ -79,10 +80,9 @@ class AddressBook(UserDict):
     def get_birthdays_per_week(self):
         result = {'Monday': [], 'Tuesday': [], 'Wednesday': [], 'Thursday': [], 'Friday': []}
         today = datetime.today().date()
-
-        for user in self.data:
-            name = user['name']
-            birthday = user['birthday']
+        for key, value in self.items():
+            name = key
+            birthday = datetime.strptime(value.birthday.value, '%d.%m.%Y').date()
             if (birthday.month == 2 and birthday.day == 29):
                 day = birthday.day - 1
                 birthday_this_year = birthday.replace(year=today.year, day=day)
@@ -95,6 +95,4 @@ class AddressBook(UserDict):
                 else:
                     result['Monday'].append(name)
 
-        for key, value in result.items():
-            if value:
-                print('{}: {}'.format(key, ', '.join(value)))
+        return list(chain(*result.values()))

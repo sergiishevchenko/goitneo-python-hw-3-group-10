@@ -20,6 +20,10 @@ def exit_command(args, contacts):
     return 'Good bye!'
 
 
+def unknown_command(args, contacts):
+    return 'Unknown command'
+
+
 @input_error
 def add_contact(args, contacts: AddressBook):
     name = Name(args[0])
@@ -29,6 +33,31 @@ def add_contact(args, contacts: AddressBook):
         contacts.add_record(Record(name, phone))
         return 'Contact added.'
     return 'Incorrect phone format.'
+
+
+@input_error
+def change_contact(args, contacts: AddressBook):
+    name = Name(args[0])
+    new_phone = Phone(args[1])
+
+    if new_phone.validate():
+        old_record = contacts.find(name)
+        if old_record:
+            old_phone = old_record.phones[0]
+            old_record.edit_phone(old_phone, new_phone)
+            return 'Contact changed.'
+        return 'User does not exists.'
+    return 'Incorrect phone format.'
+
+
+@input_error
+def get_phone(args, contacts: AddressBook):
+    name = args
+    return contacts[name[0]]
+
+
+def get_all(args, contacts: AddressBook):
+    return contacts
 
 
 @input_error
@@ -53,33 +82,8 @@ def get_birthday(args, contacts: AddressBook):
         return record.show_birthday(name.value)
 
 
-@input_error
-def change_contact(args, contacts: AddressBook):
-    name = Name(args[0])
-    new_phone = Phone(args[1])
-
-    if new_phone.validate():
-        old_record = contacts.find(name)
-        if old_record:
-            old_phone = old_record.phones[0]
-            old_record.edit_phone(old_phone, new_phone)
-            return 'Contact changed.'
-        return 'User does not exists.'
-    return 'Incorrect phone format.'
-
-
-def get_all(args, contacts: AddressBook):
-    return contacts
-
-
-@input_error
-def get_phone(args, contacts: AddressBook):
-    name = args
-    return contacts[name[0]]
-
-
-def unknown_command(args, contacts):
-    return 'Unknown command'
+def get_birthdays_per_week(args, contacts: AddressBook):
+    return contacts.get_birthdays_per_week()
 
 
 COMMAND_HANDLER = {
@@ -87,9 +91,9 @@ COMMAND_HANDLER = {
     change_contact: ['change', 'поменять'],
     get_phone: ['phone', 'телефон'],
     get_all: ['all', 'все', 'всё'],
-    add_birthday: ['add-birthday', 'birth', 'birthday'],
-    get_birthday: ['show-birthday', 'show'],
-    # birthdays
+    add_birthday: ['birth'],
+    get_birthday: ['show'],
+    get_birthdays_per_week: ['week'],
     hello_command: ['hello', 'hi', 'привет'],
     exit_command: ['exit', 'bye', 'close'],
 }
