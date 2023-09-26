@@ -1,4 +1,4 @@
-from classes import Name, Phone, Record, AddressBook
+from classes import Name, Phone, Record, AddressBook, Birthday
 
 
 def input_error(func):
@@ -24,8 +24,31 @@ def exit_command(args, contacts):
 def add_contact(args, contacts: AddressBook):
     name = Name(args[0])
     phone = Phone(args[1])
-    contacts.add_record(Record(name, phone))
-    return 'Contact added.'
+    if phone.validate():
+        contacts.add_record(Record(name, phone))
+        return 'Contact added.'
+    return 'Incorrect phone format.'
+
+
+@input_error
+def add_birthday(args, contacts: AddressBook):
+    name = Name(args[0])
+    birthday = Birthday(args[1])
+    if birthday.validate():
+        record = contacts.find(name)
+        if record:
+            record.add_birthday(name, birthday)
+            return 'Birthday added.'
+        return 'User does not exists.'
+    return 'Incorrect data format, should be DD.MM.YYYY'
+
+
+@input_error
+def get_birthday(args, contacts: AddressBook):
+    name = Name(args[0])
+    record = contacts.find(name)
+    if record:
+        return record.show_birthday(name.value)
 
 
 @input_error
@@ -57,12 +80,15 @@ def unknown_command(args, contacts):
 
 
 COMMAND_HANDLER = {
-    hello_command: ['hello', 'hi', 'привет'],
-    exit_command: ['exit', 'bye', 'close'],
     add_contact: ['add', '+', 'добавить'],
     change_contact: ['change', 'поменять'],
     get_phone: ['phone', 'телефон'],
-    get_all: ['all', 'все', 'всё']
+    get_all: ['all', 'все', 'всё'],
+    add_birthday: ['add-birthday', 'birth', 'birthday'],
+    get_birthday: ['show-birthday', 'show'],
+    # birthdays
+    hello_command: ['hello', 'hi', 'привет'],
+    exit_command: ['exit', 'bye', 'close'],
 }
 
 

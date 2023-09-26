@@ -17,22 +17,16 @@ class Name(Field):
 
 
 class Phone(Field):
-    def validate(self, phone):
-        try:
-            return re.match(r'(\+[0-9]+\s*)?(\([0-9]+\))?[\s0-9\-]+[0-9]+', phone)
-        except ValueError:
-            raise ValueError('Incorrect phone format.')
-
-
-class Birthday:
-    def __init__(self, birthday):
-        self.birthday = birthday
 
     def validate(self):
-        try:
-            datetime.strptime(self.birthday, "%Y-%m-%d")
-        except ValueError:
-            raise ValueError('Incorrect data format, should be YYYY-MM-DD')
+        return re.match(r'(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', self.value)
+
+
+class Birthday(Field):
+
+    def validate(self):
+        datetime.strptime(self.value, "%d.%m.%Y")
+        return True
 
 
 class Record:
@@ -52,14 +46,14 @@ class Record:
         if self.name:
             return self.phones
 
-    def add_birthday(self, name, birthday: Birthday):
+    def add_birthday(self, name: Name, birthday: Birthday):
         self.birthday = birthday
         self.name = name
 
-    def show_birthday(self, name):
+    def show_birthday(self, name: Name):
         self.name = name
         if self.name:
-            return self.birthday
+            return self.birthday.value
 
     def remove_phone(self, phone: Phone):
         self.phones.remove(phone)
