@@ -1,4 +1,6 @@
-from classes import Name, Phone, Record, AddressBook, Birthday
+from classes import (Name, Phone, Record, AddressBook,\
+                    Birthday, IsCorrectPhoneFormat, \
+                    IsCorrectDateFormat, IsRecordInContacts, IsBirthdayInRecord)
 
 
 def input_error(func):
@@ -6,9 +8,17 @@ def input_error(func):
         try:
             return func(*args, **kwargs)
         except IndexError:
-            return "Give me name and phone please."
+            return "Give me name and/or phone please."
         except KeyError:
             return 'User does not exists.'
+        except IsCorrectPhoneFormat as error:
+            return error
+        except IsCorrectDateFormat as error:
+            return error
+        except IsRecordInContacts as error:
+            return error
+        except IsBirthdayInRecord as error:
+            return error
     return inner
 
 
@@ -28,11 +38,8 @@ def unknown_command(args, contacts):
 def add_contact(args, contacts: AddressBook):
     name = Name(args[0])
     phone = Phone(args[1])
-
-    if phone.validate():
-        contacts.add_record(Record(name, phone))
-        return 'Contact added.'
-    return 'Incorrect phone format.'
+    contacts.add_record(Record(name, phone))
+    return 'Contact added.'
 
 
 @input_error
@@ -40,20 +47,17 @@ def change_contact(args, contacts: AddressBook):
     name = Name(args[0])
     new_phone = Phone(args[1])
 
-    if new_phone.validate():
-        old_record = contacts.find(name)
-        if old_record:
-            old_phone = old_record.phones[0]
-            old_record.edit_phone(old_phone, new_phone)
-            return 'Contact changed.'
-        return 'User does not exists.'
-    return 'Incorrect phone format.'
+    old_record = contacts.find(name)
+    old_phone = old_record.phones[0]
+    old_record.edit_phone(old_phone, new_phone)
+    return 'Contact changed.'
 
 
 @input_error
 def get_phone(args, contacts: AddressBook):
     name = args
-    return contacts[name[0]]
+    record = contacts[name[0]]
+    return record.phones
 
 
 def get_all(args, contacts: AddressBook):
@@ -65,21 +69,17 @@ def add_birthday(args, contacts: AddressBook):
     name = Name(args[0])
     birthday = Birthday(args[1])
 
-    if birthday.validate():
-        record = contacts.find(name)
-        if record:
-            record.add_birthday(name, birthday)
-            return 'Birthday added.'
-        return 'User does not exists.'
-    return 'Incorrect data format, should be DD.MM.YYYY'
+    record = contacts.find(name)
+    record.add_birthday(name, birthday)
+    return 'Birthday added.'
 
 
 @input_error
 def get_birthday(args, contacts: AddressBook):
     name = Name(args[0])
+
     record = contacts.find(name)
-    if record:
-        return record.show_birthday(name.value)
+    return record.show_birthday()
 
 
 def get_birthdays_per_week(args, contacts: AddressBook):
@@ -87,14 +87,14 @@ def get_birthdays_per_week(args, contacts: AddressBook):
 
 
 COMMAND_HANDLER = {
-    add_contact: ['add', '+', 'добавить'],
-    change_contact: ['change', 'поменять'],
-    get_phone: ['phone', 'телефон'],
-    get_all: ['all', 'все', 'всё'],
+    add_contact: ['add'],
+    change_contact: ['change'],
+    get_phone: ['phone'],
+    get_all: ['all'],
     add_birthday: ['birth'],
     get_birthday: ['show'],
     get_birthdays_per_week: ['week'],
-    hello_command: ['hello', 'hi', 'привет'],
+    hello_command: ['hello', 'hi'],
     exit_command: ['exit', 'bye', 'close'],
 }
 
