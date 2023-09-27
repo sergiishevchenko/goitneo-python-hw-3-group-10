@@ -91,11 +91,11 @@ COMMAND_HANDLER = {
     change_contact: ['change'],
     get_phone: ['phone'],
     get_all: ['all'],
-    add_birthday: ['birth'],
-    get_birthday: ['show'],
-    get_birthdays_per_week: ['week'],
-    hello_command: ['hello', 'hi'],
-    exit_command: ['exit', 'bye', 'close'],
+    add_birthday: ['add-birthday'],
+    get_birthday: ['show-birthday'],
+    get_birthdays_per_week: ['birthdays'],
+    hello_command: ['hello'],
+    exit_command: ['exit', 'close'],
 }
 
 
