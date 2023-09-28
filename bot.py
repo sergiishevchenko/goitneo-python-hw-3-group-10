@@ -38,6 +38,7 @@ def unknown_command(args, contacts):
 def add_contact(args, contacts: AddressBook):
     name = Name(args[0])
     phone = Phone(args[1])
+
     contacts.add_record(Record(name, phone))
     return 'Contact added.'
 
@@ -56,6 +57,7 @@ def change_contact(args, contacts: AddressBook):
 @input_error
 def get_phone(args, contacts: AddressBook):
     name = args
+
     record = contacts[name[0]]
     return record.phones
 
@@ -91,9 +93,9 @@ COMMAND_HANDLER = {
     change_contact: ['change'],
     get_phone: ['phone'],
     get_all: ['all'],
-    add_birthday: ['add-birthday'],
-    get_birthday: ['show-birthday'],
-    get_birthdays_per_week: ['birthdays'],
+    add_birthday: ['birth'],
+    get_birthday: ['show'],
+    get_birthdays_per_week: ['week'],
     hello_command: ['hello'],
     exit_command: ['exit', 'close'],
 }
@@ -110,14 +112,18 @@ def parser(user_input: str):
 def main():
     print('Welcome to the assistant bot!')
 
-    contacts = AddressBook()
     while True:
         user_input = input('Enter a command: ')
         cmd, data = parser(user_input)
         print(cmd(data, contacts))
+
         if cmd == exit_command:
+            contacts.dump('address_book.pickle')
             break
 
 
 if __name__ == '__main__':
+    contacts = AddressBook()
+
+    contacts.load('address_book.pickle')
     main()

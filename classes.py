@@ -3,6 +3,7 @@ from datetime import datetime
 from itertools import chain
 
 import re
+import pickle
 
 
 class IsCorrectPhoneFormat(Exception):
@@ -44,7 +45,7 @@ class Phone(Field):
         if re.match(r'(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}', new_value):
             self._value = new_value
         else:
-            raise IsCorrectPhoneFormat('Incorrect phone format.')
+            raise IsCorrectPhoneFormat('Incorrect phone format: should be 10-digit number.')
 
     def __repr__(self):
         return self._value
@@ -117,19 +118,33 @@ class AddressBook(UserDict):
     def get_birthdays_per_week(self):
         result = {'Monday': [], 'Tuesday': [], 'Wednesday': [], 'Thursday': [], 'Friday': []}
         today = datetime.today().date()
+
         for key, value in self.items():
             name = key
             birthday = datetime.strptime(value.birthday.value, '%d.%m.%Y').date()
+
             if (birthday.month == 2 and birthday.day == 29):
                 day = birthday.day - 1
                 birthday_this_year = birthday.replace(year=today.year, day=day)
-            else:
-                birthday_this_year = birthday.replace(year=today.year)
+            birthday_this_year = birthday.replace(year=today.year)
+
             delta_days = (birthday_this_year - today).days
             if birthday_this_year >= today and delta_days < 7:
                 if birthday.strftime('%A') in result.keys():
                     result[birthday.strftime('%A')].append(name)
-                else:
-                    result['Monday'].append(name)
+                result['Monday'].append(name)
 
         return list(chain(*result.values()))
+
+    def dump(self, file):
+        with open(file, 'wb') as fh:
+            pickle.dump(self, fh)
+
+    def load(self, file):
+        try:
+            with open(file, 'rb') as fh:
+                dt = pickle.load(fh)
+                self.update(dt)
+            return True
+        except:
+            return False
